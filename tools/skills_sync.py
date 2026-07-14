@@ -21,7 +21,6 @@ Update logic:
 The manifest lives at ~/.hermes/skills/.bundled_manifest.
 """
 
-import hashlib
 import json
 import logging
 import os
@@ -29,6 +28,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from hermes_constants import get_bundled_skills_dir, get_hermes_home, get_optional_skills_dir
+from agent.internal_hash import internal_hasher
 from agent.skill_utils import is_excluded_skill_path
 from typing import Dict, List, Optional, Tuple
 from utils import atomic_replace
@@ -202,7 +202,7 @@ def _compute_relative_dest(skill_dir: Path, bundled_dir: Path) -> Path:
 
 def _dir_hash(directory: Path) -> str:
     """Compute a hash of all file contents in a directory for change detection."""
-    hasher = hashlib.md5(usedforsecurity=False)
+    hasher = internal_hasher(legacy_algorithm="md5")
     try:
         for fpath in sorted(directory.rglob("*")):
             if fpath.is_file():

@@ -16,7 +16,6 @@ Improvements over v2:
   - Richer tool call/result detail in summarizer input
 """
 
-import hashlib
 import json
 import logging
 import re
@@ -25,6 +24,7 @@ from typing import Any, Dict, List, Optional
 
 from agent.auxiliary_client import call_llm, _is_connection_error, aux_interrupt_protection
 from agent.context_engine import ContextEngine
+from agent.internal_hash import internal_digest
 from agent.model_metadata import (
     MINIMUM_CONTEXT_LENGTH,
     get_model_context_length,
@@ -1077,7 +1077,7 @@ class ContextCompressor(ContextEngine):
                 continue
             if len(content) < 200:
                 continue
-            h = hashlib.md5(content.encode("utf-8", errors="replace"), usedforsecurity=False).hexdigest()[:12]
+            h = internal_digest(content.encode("utf-8", errors="replace"), legacy_algorithm="md5", length=12)
             if h in content_hashes:
                 # This is an older duplicate — replace with back-reference
                 result[i] = {**msg, "content": "[Duplicate tool output — same content as a more recent call]"}

@@ -18,6 +18,7 @@ import uuid
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
 
+from agent.internal_hash import internal_digest
 from agent.prompt_builder import DEFAULT_AGENT_IDENTITY
 
 logger = logging.getLogger(__name__)
@@ -233,7 +234,7 @@ def _derive_responses_function_call_id(
         return f"fc_{sanitized[:48]}"
 
     seed = source or str(response_item_id or "") or uuid.uuid4().hex
-    digest = hashlib.sha1(seed.encode("utf-8"), usedforsecurity=False).hexdigest()[:24]
+    digest = internal_digest(seed.encode("utf-8"), legacy_algorithm="sha1", length=24)
     return f"fc_{digest}"
 
 
